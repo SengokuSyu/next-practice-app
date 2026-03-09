@@ -1,3 +1,5 @@
+"use client"
+
 import { TaskForm } from "@/components/task-form";
 import { TaskList } from "@/components/task-list";
 import { Task } from "@/types/Task";
