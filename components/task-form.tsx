@@ -1,31 +1,51 @@
-"use client"
+"use client";
 
-import { SyntheticEvent, useState } from "react"
+import { Task } from "@/types/Task";
+import { SyntheticEvent, useEffect, useState } from "react";
 
 type Props = {
-    onAdd: (title: string) => void
-}
+  onAdd: (title: string) => void;
+  onUpdate: (title: string) => void;
+  editingTask: Task | null;
+};
+/** タスク入力フォーム */
+export const TaskForm = ({ onAdd, onUpdate, editingTask }: Props) => {
+  const [title, setTitle] = useState("");
 
-export const TaskForm = ({ onAdd }: Props) => {
-    const [title, setTitle] = useState("")
-    const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        onAdd(title)
-        setTitle("")
+  useEffect(() => {
+    if (editingTask) {
+      setTitle(editingTask.title);
+    }
+  }, [editingTask]);
+
+  const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!title.trim()) return;
+
+    if (editingTask) {
+      onUpdate(title);
+    } else {
+      onAdd(title);
     }
 
-    return (
-        <form onSubmit={handleSubmit} className="flex gap=-2">
-            <input 
-                className="border p-2 rounded"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="New task"
-            />
-            <button className="bg-blue-500 text-white px-3 py-2 rounded" type="submit">
-                Add
-            </button>
-        </form>
-    )
-}
+    setTitle("");
+  };
 
+  return (
+    <form onSubmit={handleSubmit} className="flex gap=-2">
+      <input
+        className="border p-2 rounded"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="New task"
+      />
+      <button
+        className="bg-blue-500 text-white px-3 py-2 rounded"
+        type="submit"
+      >
+        {editingTask ? "Update" : "Add"}
+      </button>
+    </form>
+  );
+};
