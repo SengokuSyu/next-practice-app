@@ -1,6 +1,7 @@
 "use client";
 
 import { Task } from "@/types/Task";
+import { Button, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 
 type Props = {
@@ -13,9 +14,9 @@ export const TaskForm = ({ onAdd, onUpdate, editingTask }: Props) => {
   const [title, setTitle] = useState("");
 
   useEffect(() => {
-    if (editingTask) {
-      setTitle(editingTask.title);
-    }
+    //TODO: 回避コードの修正
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTitle(editingTask?.title ?? "");
   }, [editingTask]);
 
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
@@ -34,18 +35,21 @@ export const TaskForm = ({ onAdd, onUpdate, editingTask }: Props) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex gap=-2">
-      <input
-        className="border p-2 rounded"
+      <TextField
+        color="primary"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="New task"
+        sx={{ backgroundColor: "white" }}
       />
-      <button
+      <Button
+        variant="contained"
+        size="small"
         className="bg-blue-500 text-white px-3 py-2 rounded"
         type="submit"
       >
-        {editingTask ? "Update" : "Add"}
-      </button>
+        {editingTask ? "更新" : "追加"}
+      </Button>
     </form>
   );
 };

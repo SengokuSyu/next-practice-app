@@ -4,6 +4,7 @@ import { TaskForm } from "@/components/task-form";
 import { TaskList } from "@/components/task-list";
 import { supabase } from "@/lib/supabase";
 import { Task } from "@/types/Task";
+import { Button } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,18 +31,17 @@ export default function Home() {
     if (!user) {
       router.push("/login");
     }
-  }, [authChecked, user]);
-
-  const fetchTasks = async () => {
-    const { data } = await supabase
-      .from("tasks")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) setTasks(data);
-  };
+  }, [authChecked, router, user]);
 
   useEffect(() => {
+    const fetchTasks = async () => {
+      const { data } = await supabase
+        .from("tasks")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data) setTasks(data);
+    };
     fetchTasks();
   }, []);
 
@@ -97,12 +97,14 @@ export default function Home() {
     <main className="max-w-xl mx-auto mt-10">
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
-        <button
+        <Button
+          variant="contained"
+          color="error"
           onClick={logout}
           className="bg-red-500 text-white px-2 py-1 rounded"
         >
-          Logout
-        </button>
+          ログアウト
+        </Button>
       </div>
 
       <TaskForm
