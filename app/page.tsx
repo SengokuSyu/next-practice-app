@@ -1,9 +1,11 @@
 "use client";
 
-import { TaskForm } from "@/components/task-form";
-import { TaskList } from "@/components/task-list";
+import { AddTaskDialog } from "@/components/AddTaskDialog";
+import { TaskList } from "@/components/TaskList";
 import { supabase } from "@/lib/supabase";
+import { TaskBase } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
+import { Add } from "@mui/icons-material";
 import { Avatar, Button, Card, Typography } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
@@ -14,6 +16,7 @@ export default function Home() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const router = useRouter();
 
@@ -45,10 +48,10 @@ export default function Home() {
     fetchTasks();
   }, []);
 
-  const addTask = async (title: string) => {
+  const addTask = async ({ title, description, type }: TaskBase) => {
     const { data } = await supabase
       .from("tasks")
-      .insert([{ title, completed: false }])
+      .insert([{ title, description, type, completed: false }])
       .select();
 
     if (data) {
@@ -117,11 +120,18 @@ export default function Home() {
           <Typography className="text-xl font-semibold">
             タスク{tasks.length}/{tasks.length}
           </Typography>
-          <TaskForm
-            onAdd={addTask}
-            onUpdate={updateTask}
-            editingTask={editingTask}
-          />
+          <Button
+            startIcon={<Add />}
+            variant="contained"
+            size="small"
+            className="bg-blue-500 text-white px-3 py-2 rounded"
+            type="submit"
+            onClick={() => {
+              setOpenDialog(true);
+            }}
+          >
+            {"タスクを追加"}
+          </Button>
         </div>
         {tasks.length > 0 ? (
           <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
@@ -134,6 +144,11 @@ export default function Home() {
           </div>
         )}
       </Card>
+      <AddTaskDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onAdd={addTask}
+      />
     </main>
   );
 }

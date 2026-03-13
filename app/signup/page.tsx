@@ -24,7 +24,7 @@ const SignupPage = () => {
   });
 
   const onSubmit = async (data: SignupInput) => {
-    const { data: userData, error } = await supabase.auth.signUp({
+    await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -33,14 +33,12 @@ const SignupPage = () => {
         },
       },
     });
-    console.log("userData", userData);
-    console.log("error", error);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-200">
       <Card className="w-[480px] shadow-xl !rounded-[12px]">
-        <CardContent className="gap-6 flex flex-col justify-center">
+        <CardContent className="p-10 gap-6 flex flex-col justify-center">
           <div className="flex flex-col gap-1">
             {/* icon */}
             <div className="flex justify-center mb-4">
