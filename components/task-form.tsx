@@ -1,6 +1,7 @@
 "use client";
 
 import { Task } from "@/types/Task";
+import { Add } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
 import { SyntheticEvent, useEffect, useState } from "react";
 
@@ -43,12 +44,13 @@ export const TaskForm = ({ onAdd, onUpdate, editingTask }: Props) => {
         sx={{ backgroundColor: "white" }}
       />
       <Button
+        startIcon={<Add />}
         variant="contained"
         size="small"
         className="bg-blue-500 text-white px-3 py-2 rounded"
         type="submit"
       >
-        {editingTask ? "更新" : "追加"}
+        {editingTask ? "更新" : "タスクを追加"}
       </Button>
     </form>
   );
