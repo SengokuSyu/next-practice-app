@@ -4,7 +4,7 @@ import { TaskForm } from "@/components/task-form";
 import { TaskList } from "@/components/task-list";
 import { supabase } from "@/lib/supabase";
 import { Task } from "@/types/Task";
-import { Button } from "@mui/material";
+import { Avatar, Button, Card, Typography } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -94,26 +94,46 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-xl mx-auto mt-10">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={logout}
-          className="bg-red-500 text-white px-2 py-1 rounded"
-        >
-          ログアウト
-        </Button>
+    <main className="min-h-screen bg-slate-200 px-10 py-10">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-slate-800">タスク一覧</h1>
+
+        <div className="flex items-center gap-3">
+          <span className="text-slate-600">
+            {user?.user_metadata?.name ?? "User"}
+          </span>
+
+          <Avatar />
+
+          {/* あとでアバターアイコン内のダイアログに移動 */}
+          <Button onClick={logout} variant="outlined" size="small">
+            ログアウト
+          </Button>
+        </div>
       </div>
 
-      <TaskForm
-        onAdd={addTask}
-        onUpdate={updateTask}
-        editingTask={editingTask}
-      />
-
-      <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
+      <Card className="p-8 !rounded-[24px]">
+        <div className="flex justify-between items-center mb-6">
+          <Typography className="text-xl font-semibold">
+            タスク{tasks.length}/{tasks.length}
+          </Typography>
+          <TaskForm
+            onAdd={addTask}
+            onUpdate={updateTask}
+            editingTask={editingTask}
+          />
+        </div>
+        {tasks.length > 0 ? (
+          <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-32 text-slate-500">
+            <Typography className="text-lg">まだタスクがありません</Typography>
+            <Typography className="text-sm">
+              新しいタスクを追加してください
+            </Typography>
+          </div>
+        )}
+      </Card>
     </main>
   );
 }
