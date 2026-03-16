@@ -39,11 +39,13 @@ export default function Home() {
   }, [authChecked, router, user]);
 
   useEffect(() => {
+    if (!user?.id) return;
+
     const fetchTasks = async () => {
       const { data } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (data) setTasks(data);
