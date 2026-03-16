@@ -114,7 +114,7 @@ export const TaskForm = ({ onAdd, onClose }: Props) => {
         <Button
           variant="outlined"
           onClick={onClose}
-          className="px-[24px] rounded-[12px]"
+          className="px-6 rounded-xl"
         >
           キャンセル
         </Button>

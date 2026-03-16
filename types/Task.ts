@@ -5,7 +5,7 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  type: number[];
+  type: (string | undefined)[];
   completed: boolean;
   created_at: string;
 };

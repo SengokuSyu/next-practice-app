@@ -1,7 +1,6 @@
-
 import { Close } from "@mui/icons-material";
 import { Dialog, DialogContent, IconButton } from "@mui/material";
-import { TaskForm } from "./TaskForm";
+import { TaskForm } from "./AddTaskForm";
 import { TaskBase } from "@/schemas/task.schema";
 
 type Props = {
@@ -11,10 +10,10 @@ type Props = {
 };
 
 export const AddTaskDialog = ({ open, onClose, onAdd }: Props) => {
-    const handleAdd = (task: TaskBase) => {
-        onAdd(task);
-        onClose();
-    }
+  const handleAdd = (task: TaskBase) => {
+    onAdd(task);
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

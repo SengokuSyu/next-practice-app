@@ -1,9 +1,10 @@
 "use client";
 
 import { AddTaskDialog } from "@/components/AddTaskDialog";
+import { EditTaskDialog } from "@/components/EditTaskDialog";
 import { TaskList } from "@/components/TaskList";
 import { supabase } from "@/lib/supabase";
-import { TaskBase } from "@/schemas/task.schema";
+import { EditTask, TaskBase } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
 import { Add } from "@mui/icons-material";
 import { Avatar, Button, Card, Typography } from "@mui/material";
@@ -16,7 +17,8 @@ export default function Home() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const router = useRouter();
 
@@ -61,14 +63,19 @@ export default function Home() {
 
   const startEdit = (task: Task) => {
     setEditingTask(task);
+    setOpenEditDialog(true);
   };
 
-  const updateTask = async (title: string) => {
+  const updateTask = async (task: EditTask) => {
     if (!editingTask) return;
 
     const { data } = await supabase
       .from("tasks")
-      .update({ title })
+      .update({
+        title: task.title,
+        description: task.description,
+        type: task.type,
+      })
       .eq("id", editingTask.id)
       .select();
 
@@ -77,8 +84,6 @@ export default function Home() {
         prev.map((task) => (task.id === editingTask.id ? data[0] : task)),
       );
     }
-
-    setEditingTask(null);
   };
 
   const deleteTask = async (id: string) => {
@@ -115,10 +120,10 @@ export default function Home() {
         </div>
       </div>
 
-      <Card className="p-8 !rounded-[24px]">
+      <Card className="p-8 rounded-3xl!">
         <div className="flex justify-between items-center mb-6">
           <Typography className="text-xl font-semibold">
-            タスク{tasks.length}/{tasks.length}
+            タスク{tasks.filter((task) => task.completed).length}/{tasks.length}
           </Typography>
           <Button
             startIcon={<Add />}
@@ -127,7 +132,7 @@ export default function Home() {
             className="bg-blue-500 text-white px-3 py-2 rounded"
             type="submit"
             onClick={() => {
-              setOpenDialog(true);
+              setOpenAddDialog(true);
             }}
           >
             {"タスクを追加"}
@@ -145,10 +150,18 @@ export default function Home() {
         )}
       </Card>
       <AddTaskDialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
         onAdd={addTask}
       />
+      {editingTask && (
+        <EditTaskDialog
+          open={openEditDialog}
+          onClose={() => setOpenEditDialog(false)}
+          task={editingTask}
+          onEdit={updateTask}
+        />
+      )}
     </main>
   );
 }
