@@ -24,7 +24,7 @@ const SignupPage = () => {
   });
 
   const onSubmit = async (data: SignupInput) => {
-    const { data: userData, error } = await supabase.auth.signUp({
+    await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -33,14 +33,12 @@ const SignupPage = () => {
         },
       },
     });
-    console.log("userData", userData);
-    console.log("error", error);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-200">
-      <Card className="w-[480px] shadow-xl !rounded-[12px]">
-        <CardContent className="gap-6 flex flex-col justify-center">
+      <Card className="w-120 shadow-xl rounded-xl!">
+        <CardContent className="p-10 gap-6 flex flex-col justify-center">
           <div className="flex flex-col gap-1">
             {/* icon */}
             <div className="flex justify-center mb-4">
@@ -50,7 +48,7 @@ const SignupPage = () => {
             </div>
 
             {/* title */}
-            <Typography variant="h5" align="center" className="font-bold !mb-2">
+            <Typography variant="h5" align="center" className="font-bold mb-2!">
               アカウント作成
             </Typography>
             <Typography align="center" className="text-gray-500 mb-6">
@@ -119,7 +117,7 @@ const SignupPage = () => {
               type="submit"
               variant="contained"
               fullWidth
-              className="!x-366 !y-20 !bg-indigo-500 !text-white !mb-4 !py-2 !px-4"
+              className="!x-366 !y-20 bg-indigo-500! text-white! mb-4! py-2! px-4!"
             >
               アカウントを作成
             </Button>
@@ -127,7 +125,7 @@ const SignupPage = () => {
               ログインは{" "}
               <Link
                 href="/login"
-                className="text-[var(--color-indigo-600)] font-medium"
+                className="text-indigo-600 font-medium"
               >
                 こちら
               </Link>

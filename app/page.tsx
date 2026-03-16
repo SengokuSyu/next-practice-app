@@ -1,10 +1,13 @@
 "use client";
 
-import { TaskForm } from "@/components/task-form";
-import { TaskList } from "@/components/task-list";
+import { AddTaskDialog } from "@/components/AddTaskDialog";
+import { EditTaskDialog } from "@/components/EditTaskDialog";
+import { TaskList } from "@/components/TaskList";
 import { supabase } from "@/lib/supabase";
+import { EditTask, TaskBase } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
-import { Avatar, Button, Card, Typography } from "@mui/material";
+import { AccountCircle, Add } from "@mui/icons-material";
+import { Button, Card, IconButton, Typography } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +17,8 @@ export default function Home() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const router = useRouter();
 
@@ -38,17 +43,20 @@ export default function Home() {
       const { data } = await supabase
         .from("tasks")
         .select("*")
+        .eq("user_id", user?.id)
         .order("created_at", { ascending: false });
 
       if (data) setTasks(data);
     };
     fetchTasks();
-  }, []);
+  }, [user?.id]);
 
-  const addTask = async (title: string) => {
+  const addTask = async ({ title, description, type }: TaskBase) => {
     const { data } = await supabase
       .from("tasks")
-      .insert([{ title, completed: false }])
+      .insert([
+        { title, description, type, completed: false, user_id: user?.id },
+      ])
       .select();
 
     if (data) {
@@ -58,14 +66,20 @@ export default function Home() {
 
   const startEdit = (task: Task) => {
     setEditingTask(task);
+    setOpenEditDialog(true);
   };
 
-  const updateTask = async (title: string) => {
+  const updateTask = async (task: EditTask) => {
     if (!editingTask) return;
 
     const { data } = await supabase
       .from("tasks")
-      .update({ title })
+      .update({
+        title: task.title,
+        description: task.description,
+        type: task.type,
+        user_id: task.userId,
+      })
       .eq("id", editingTask.id)
       .select();
 
@@ -74,19 +88,12 @@ export default function Home() {
         prev.map((task) => (task.id === editingTask.id ? data[0] : task)),
       );
     }
-
-    setEditingTask(null);
   };
 
   const deleteTask = async (id: string) => {
     await supabase.from("tasks").delete().eq("id", id);
 
     setTasks((prev) => prev.filter((task) => task.id !== id));
-  };
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
   };
 
   if (!authChecked && !user) {
@@ -103,25 +110,29 @@ export default function Home() {
             {user?.user_metadata?.name ?? "User"}
           </span>
 
-          <Avatar />
-
-          {/* あとでアバターアイコン内のダイアログに移動 */}
-          <Button onClick={logout} variant="outlined" size="small">
-            ログアウト
-          </Button>
+          <IconButton onClick={() => router.push("/profile")} size="small">
+            <AccountCircle sx={{ fontSize: 40 }} />
+          </IconButton>
         </div>
       </div>
 
-      <Card className="p-8 !rounded-[24px]">
+      <Card className="p-8 rounded-3xl!">
         <div className="flex justify-between items-center mb-6">
           <Typography className="text-xl font-semibold">
-            タスク{tasks.length}/{tasks.length}
+            タスク{tasks.filter((task) => task.completed).length}/{tasks.length}
           </Typography>
-          <TaskForm
-            onAdd={addTask}
-            onUpdate={updateTask}
-            editingTask={editingTask}
-          />
+          <Button
+            startIcon={<Add />}
+            variant="contained"
+            size="small"
+            className="bg-blue-500 text-white px-3 py-2 rounded"
+            type="submit"
+            onClick={() => {
+              setOpenAddDialog(true);
+            }}
+          >
+            {"タスクを追加"}
+          </Button>
         </div>
         {tasks.length > 0 ? (
           <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
@@ -134,6 +145,23 @@ export default function Home() {
           </div>
         )}
       </Card>
+      {user && (
+        <AddTaskDialog
+          userId={user.id}
+          open={openAddDialog}
+          onClose={() => setOpenAddDialog(false)}
+          onAdd={addTask}
+        />
+      )}
+      {user && editingTask && (
+        <EditTaskDialog
+          userId={user.id}
+          open={openEditDialog}
+          onClose={() => setOpenEditDialog(false)}
+          task={editingTask}
+          onEdit={updateTask}
+        />
+      )}
     </main>
   );
 }
