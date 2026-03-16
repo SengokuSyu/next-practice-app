@@ -1,10 +1,13 @@
 "use client";
 
-import { TaskForm } from "@/components/task-form";
-import { TaskList } from "@/components/task-list";
+import { AddTaskDialog } from "@/components/AddTaskDialog";
+import { EditTaskDialog } from "@/components/EditTaskDialog";
+import { TaskList } from "@/components/TaskList";
 import { supabase } from "@/lib/supabase";
+import { EditTask, TaskBase } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
-import { Button } from "@mui/material";
+import { AccountCircle, Add } from "@mui/icons-material";
+import { Button, Card, IconButton, Typography } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +17,8 @@ export default function Home() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const router = useRouter();
 
@@ -35,20 +40,25 @@ export default function Home() {
 
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.id) return;
+
       const { data } = await supabase
         .from("tasks")
         .select("*")
+        .eq("user_id", user?.id)
         .order("created_at", { ascending: false });
 
       if (data) setTasks(data);
     };
     fetchTasks();
-  }, []);
+  }, [user?.id]);
 
-  const addTask = async (title: string) => {
+  const addTask = async ({ title, description, type }: TaskBase) => {
     const { data } = await supabase
       .from("tasks")
-      .insert([{ title, completed: false }])
+      .insert([
+        { title, description, type, completed: false, user_id: user?.id },
+      ])
       .select();
 
     if (data) {
@@ -58,14 +68,20 @@ export default function Home() {
 
   const startEdit = (task: Task) => {
     setEditingTask(task);
+    setOpenEditDialog(true);
   };
 
-  const updateTask = async (title: string) => {
+  const updateTask = async (task: EditTask) => {
     if (!editingTask) return;
 
     const { data } = await supabase
       .from("tasks")
-      .update({ title })
+      .update({
+        title: task.title,
+        description: task.description,
+        type: task.type,
+        user_id: task.userId,
+      })
       .eq("id", editingTask.id)
       .select();
 
@@ -74,8 +90,21 @@ export default function Home() {
         prev.map((task) => (task.id === editingTask.id ? data[0] : task)),
       );
     }
+  };
 
-    setEditingTask(null);
+  const toggleCompleted = async (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const { data } = await supabase
+      .from("tasks")
+      .update({ completed: !task.completed })
+      .eq("id", id)
+      .select();
+
+    if (data) {
+      setTasks((prev) => prev.map((t) => (t.id === id ? data[0] : t)));
+    }
   };
 
   const deleteTask = async (id: string) => {
@@ -84,36 +113,77 @@ export default function Home() {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   if (!authChecked && !user) {
     return <div>Loading...</div>;
   }
 
   return (
-    <main className="max-w-xl mx-auto mt-10">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={logout}
-          className="bg-red-500 text-white px-2 py-1 rounded"
-        >
-          ログアウト
-        </Button>
+    <main className="min-h-screen bg-slate-200 px-10 py-10">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-slate-800">タスク一覧</h1>
+
+        <div className="flex items-center gap-3">
+          <span className="text-slate-600">
+            {user?.user_metadata?.name ?? "User"}
+          </span>
+
+          <IconButton onClick={() => router.push("/profile")} size="small">
+            <AccountCircle sx={{ fontSize: 40 }} />
+          </IconButton>
+        </div>
       </div>
 
-      <TaskForm
-        onAdd={addTask}
-        onUpdate={updateTask}
-        editingTask={editingTask}
-      />
-
-      <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
+      <Card className="p-8 rounded-3xl!">
+        <div className="flex justify-between items-center mb-6">
+          <Typography className="text-xl font-semibold">
+            タスク{tasks.filter((task) => task.completed).length}/{tasks.length}
+          </Typography>
+          <Button
+            startIcon={<Add />}
+            variant="contained"
+            size="small"
+            className="bg-blue-500 text-white px-3 py-2 rounded"
+            type="submit"
+            onClick={() => {
+              setOpenAddDialog(true);
+            }}
+          >
+            {"タスクを追加"}
+          </Button>
+        </div>
+        {tasks.length > 0 ? (
+          <TaskList
+            tasks={tasks}
+            onEdit={startEdit}
+            onDelete={deleteTask}
+            onToggleCompleted={toggleCompleted}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-32 text-slate-500">
+            <Typography className="text-lg">まだタスクがありません</Typography>
+            <Typography className="text-sm">
+              新しいタスクを追加してください
+            </Typography>
+          </div>
+        )}
+      </Card>
+      {user && (
+        <AddTaskDialog
+          userId={user.id}
+          open={openAddDialog}
+          onClose={() => setOpenAddDialog(false)}
+          onAdd={addTask}
+        />
+      )}
+      {user && editingTask && (
+        <EditTaskDialog
+          userId={user.id}
+          open={openEditDialog}
+          onClose={() => setOpenEditDialog(false)}
+          task={editingTask}
+          onEdit={updateTask}
+        />
+      )}
     </main>
   );
 }
