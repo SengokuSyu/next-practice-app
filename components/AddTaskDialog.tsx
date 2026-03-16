@@ -1,15 +1,18 @@
+"use client";
+
 import { Close } from "@mui/icons-material";
 import { Dialog, DialogContent, IconButton } from "@mui/material";
 import { TaskForm } from "./AddTaskForm";
 import { TaskBase } from "@/schemas/task.schema";
 
 type Props = {
+  userId: string;
   open: boolean;
   onClose: () => void;
   onAdd: (task: TaskBase) => void;
 };
 
-export const AddTaskDialog = ({ open, onClose, onAdd }: Props) => {
+export const AddTaskDialog = ({ userId, open, onClose, onAdd }: Props) => {
   const handleAdd = (task: TaskBase) => {
     onAdd(task);
     onClose();
@@ -32,7 +35,7 @@ export const AddTaskDialog = ({ open, onClose, onAdd }: Props) => {
           </IconButton>
         </div>
 
-        <TaskForm onAdd={handleAdd} onClose={onClose} />
+        <TaskForm userId={userId} onAdd={handleAdd} onClose={onClose} />
       </DialogContent>
     </Dialog>
   );

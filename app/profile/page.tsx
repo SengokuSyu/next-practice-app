@@ -32,7 +32,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-8 py-12">
+    <div className="min-h-screen bg-slate-200 px-8 py-12">
       <div className="flex flex-col max-w-3xl mx-auto">
         <div className="flex items-center mb-8">
           <Button

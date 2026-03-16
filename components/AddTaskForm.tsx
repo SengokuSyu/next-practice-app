@@ -1,7 +1,6 @@
 "use client";
 
 import { TaskBase, taskSchema } from "@/schemas/task.schema";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -13,11 +12,12 @@ import {
 import { useForm } from "react-hook-form";
 
 type Props = {
+  userId: string;
   onAdd: (task: TaskBase) => void;
   onClose: () => void;
 };
 /** タスク入力フォーム */
-export const TaskForm = ({ onAdd, onClose }: Props) => {
+export const TaskForm = ({ userId, onAdd, onClose }: Props) => {
   const {
     register,
     handleSubmit,
@@ -29,6 +29,7 @@ export const TaskForm = ({ onAdd, onClose }: Props) => {
       title: "",
       description: "",
       type: [],
+      userId: userId,
     },
   });
 
@@ -39,6 +40,7 @@ export const TaskForm = ({ onAdd, onClose }: Props) => {
       title: "",
       description: "",
       type: [],
+      userId: userId,
     });
   };
 

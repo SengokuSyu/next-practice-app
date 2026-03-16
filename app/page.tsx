@@ -43,17 +43,20 @@ export default function Home() {
       const { data } = await supabase
         .from("tasks")
         .select("*")
+        .eq("user_id", user?.id)
         .order("created_at", { ascending: false });
 
       if (data) setTasks(data);
     };
     fetchTasks();
-  }, []);
+  }, [user?.id]);
 
   const addTask = async ({ title, description, type }: TaskBase) => {
     const { data } = await supabase
       .from("tasks")
-      .insert([{ title, description, type, completed: false }])
+      .insert([
+        { title, description, type, completed: false, user_id: user?.id },
+      ])
       .select();
 
     if (data) {
@@ -75,6 +78,7 @@ export default function Home() {
         title: task.title,
         description: task.description,
         type: task.type,
+        user_id: task.userId,
       })
       .eq("id", editingTask.id)
       .select();
@@ -106,7 +110,7 @@ export default function Home() {
             {user?.user_metadata?.name ?? "User"}
           </span>
 
-          <IconButton onClick={() => router.push('/profile')} size="small">
+          <IconButton onClick={() => router.push("/profile")} size="small">
             <AccountCircle sx={{ fontSize: 40 }} />
           </IconButton>
         </div>
@@ -141,13 +145,17 @@ export default function Home() {
           </div>
         )}
       </Card>
-      <AddTaskDialog
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        onAdd={addTask}
-      />
-      {editingTask && (
+      {user && (
+        <AddTaskDialog
+          userId={user.id}
+          open={openAddDialog}
+          onClose={() => setOpenAddDialog(false)}
+          onAdd={addTask}
+        />
+      )}
+      {user && editingTask && (
         <EditTaskDialog
+          userId={user.id}
           open={openEditDialog}
           onClose={() => setOpenEditDialog(false)}
           task={editingTask}

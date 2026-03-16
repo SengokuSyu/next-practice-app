@@ -2,7 +2,6 @@
 
 import { editTaskSchema, EditTask } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -15,12 +14,13 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type Props = {
+  userId: string;
   task: Task;
   onEdit: (task: EditTask) => void;
   onClose: () => void;
 };
 /** タスク入力フォーム */
-export const EditTaskForm = ({ task, onEdit, onClose }: Props) => {
+export const EditTaskForm = ({ userId, task, onEdit, onClose }: Props) => {
   const normalizeType = (type: (string | undefined)[] | undefined) =>
     type?.filter(Boolean).map(String) ?? [];
 
@@ -37,6 +37,7 @@ export const EditTaskForm = ({ task, onEdit, onClose }: Props) => {
       title: task.title,
       description: task.description ?? "",
       type: normalizeType(task.type),
+      userId: userId,
     },
   });
 
@@ -46,8 +47,9 @@ export const EditTaskForm = ({ task, onEdit, onClose }: Props) => {
       title: task.title,
       description: task.description ?? "",
       type: normalizeType(task.type),
+      userId: userId,
     });
-  }, [task, reset]);
+  }, [task, reset, userId]);
 
   const onSubmit = (data: EditTask) => {
     onEdit(data);
@@ -56,6 +58,7 @@ export const EditTaskForm = ({ task, onEdit, onClose }: Props) => {
       title: "",
       description: "",
       type: [],
+      userId: userId,
     });
   };
 
@@ -65,6 +68,7 @@ export const EditTaskForm = ({ task, onEdit, onClose }: Props) => {
       className="flex flex-col gap-6 mt-4"
     >
       <input type="hidden" {...register("id")} />
+      <input type="hidden" {...register("userId")}/>
       <Typography>タスク名</Typography>
       <TextField
         {...register("title")}

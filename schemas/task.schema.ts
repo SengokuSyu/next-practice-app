@@ -4,6 +4,7 @@ export const taskSchema = z.object({
   title: z.string().min(1, "タスク名は必須です"),
   description: z.string(),
   type: z.array(z.string()).default([]),
+  userId: z.string(),
 });
 
 export type TaskBase = z.input<typeof taskSchema>;

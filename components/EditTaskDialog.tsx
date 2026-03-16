@@ -7,13 +7,20 @@ import { EditTaskForm } from "./EditTaskForm";
 import { EditTask } from "@/schemas/task.schema";
 
 type Props = {
+  userId: string;
   task: Task;
   open: boolean;
   onClose: () => void;
   onEdit: (task: EditTask) => void;
 };
 
-export const EditTaskDialog = ({ task, open, onClose, onEdit }: Props) => {
+export const EditTaskDialog = ({
+  userId,
+  task,
+  open,
+  onClose,
+  onEdit,
+}: Props) => {
   const handleEdit = (updatedTask: EditTask) => {
     onEdit(updatedTask);
     onClose();
@@ -34,7 +41,12 @@ export const EditTaskDialog = ({ task, open, onClose, onEdit }: Props) => {
           </IconButton>
         </div>
 
-        <EditTaskForm task={task} onEdit={handleEdit} onClose={onClose} />
+        <EditTaskForm
+          userId={userId}
+          task={task}
+          onEdit={handleEdit}
+          onClose={onClose}
+        />
       </DialogContent>
     </Dialog>
   );
