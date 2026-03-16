@@ -40,6 +40,8 @@ export default function Home() {
 
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.id) return;
+
       const { data } = await supabase
         .from("tasks")
         .select("*")
@@ -90,6 +92,21 @@ export default function Home() {
     }
   };
 
+  const toggleCompleted = async (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const { data } = await supabase
+      .from("tasks")
+      .update({ completed: !task.completed })
+      .eq("id", id)
+      .select();
+
+    if (data) {
+      setTasks((prev) => prev.map((t) => (t.id === id ? data[0] : t)));
+    }
+  };
+
   const deleteTask = async (id: string) => {
     await supabase.from("tasks").delete().eq("id", id);
 
@@ -135,7 +152,12 @@ export default function Home() {
           </Button>
         </div>
         {tasks.length > 0 ? (
-          <TaskList tasks={tasks} onEdit={startEdit} onDelete={deleteTask} />
+          <TaskList
+            tasks={tasks}
+            onEdit={startEdit}
+            onDelete={deleteTask}
+            onToggleCompleted={toggleCompleted}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center py-32 text-slate-500">
             <Typography className="text-lg">まだタスクがありません</Typography>
