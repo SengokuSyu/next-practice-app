@@ -6,8 +6,8 @@ import { TaskList } from "@/components/TaskList";
 import { supabase } from "@/lib/supabase";
 import { EditTask, TaskBase } from "@/schemas/task.schema";
 import { Task } from "@/types/Task";
-import { Add } from "@mui/icons-material";
-import { Avatar, Button, Card, Typography } from "@mui/material";
+import { AccountCircle, Add } from "@mui/icons-material";
+import { Button, Card, IconButton, Typography } from "@mui/material";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -92,11 +92,6 @@ export default function Home() {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   if (!authChecked && !user) {
     return <div>Loading...</div>;
   }
@@ -111,12 +106,9 @@ export default function Home() {
             {user?.user_metadata?.name ?? "User"}
           </span>
 
-          <Avatar />
-
-          {/* あとでアバターアイコン内のダイアログに移動 */}
-          <Button onClick={logout} variant="outlined" size="small">
-            ログアウト
-          </Button>
+          <IconButton onClick={() => router.push('/profile')} size="small">
+            <AccountCircle sx={{ fontSize: 40 }} />
+          </IconButton>
         </div>
       </div>
 
