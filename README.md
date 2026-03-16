@@ -6,3 +6,4 @@ next.js学習用に作成したアプリ
 - React / TypeScript
 - MUI
 - Tailwind
+- supabase
