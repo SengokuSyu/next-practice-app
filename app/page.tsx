@@ -39,11 +39,13 @@ export default function Home() {
   }, [authChecked, router, user]);
 
   useEffect(() => {
+    if (!user?.id) return;
+
     const fetchTasks = async () => {
       const { data } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (data) setTasks(data);
@@ -101,7 +103,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-200 px-10 py-10">
+    <main className="page-background px-10 py-10">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold text-slate-800">タスク一覧</h1>
 

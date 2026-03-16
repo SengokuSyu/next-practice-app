@@ -42,7 +42,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-200">
+    <div className="flex items-center justify-center page-background">
       <Card className="w-120 shadow-xl rounded-xl!">
         <CardContent className="gap-6 flex flex-col justify-center">
           <div className="flex flex-col gap-1">
