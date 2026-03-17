@@ -8,6 +8,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <title>タスク管理アプリ</title>
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>
