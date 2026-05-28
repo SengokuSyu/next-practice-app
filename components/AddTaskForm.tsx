@@ -3,13 +3,18 @@
 import { TaskBase, taskSchema } from "@/schemas/task.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Button,
   Checkbox,
+  FormControl,
   FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 type Props = {
   userId: string;
@@ -22,6 +27,7 @@ export const TaskForm = ({ userId, onAdd, onClose }: Props) => {
     register,
     handleSubmit,
     formState: { errors },
+    control,
     reset,
   } = useForm<TaskBase>({
     resolver: zodResolver(taskSchema),
@@ -45,18 +51,16 @@ export const TaskForm = ({ userId, onAdd, onClose }: Props) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-6 mt-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col mt-4">
       <Typography>タスク名</Typography>
       <TextField
+        className="bg-white w-auto"
         {...register("title")}
         placeholder="タスク名"
-        sx={{ backgroundColor: "white" }}
         error={!!errors.title}
         helperText={errors.title?.message}
-      />
+      ></TextField>
+
       <Typography>備考</Typography>
       <TextField
         {...register("description")}
@@ -64,6 +68,7 @@ export const TaskForm = ({ userId, onAdd, onClose }: Props) => {
         error={!!errors.description}
         helperText={errors.description?.message}
       ></TextField>
+
       <Typography>タイプ</Typography>
       <div className="flex gap-4 flex-wrap">
         <FormControlLabel
@@ -111,6 +116,41 @@ export const TaskForm = ({ userId, onAdd, onClose }: Props) => {
           }
           label="その他"
         />
+      </div>
+      <div>
+        <FormControl>
+          <Typography>ステータス</Typography>
+          <RadioGroup className="ml-4">
+            <FormControlLabel
+              control={<Radio {...register("status")} value="waiting" />}
+              label={"未着手"}
+            />
+            <FormControlLabel
+              control={<Radio {...register("status")} value="working" />}
+              label={"着手中"}
+            />
+            <FormControlLabel
+              control={<Radio {...register("status")} value="pending" />}
+              label={"完了"}
+            />
+          </RadioGroup>
+        </FormControl>
+      </div>
+      <div>
+        <Typography>期限</Typography>
+        {/* <Controller
+          name="date"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              selected={field.value}
+              onChange={(date: Date | null) => field.onChange(date)}
+              dateFormat="yyyy/MM/dd"
+              placeholderText="日付を選択"
+              className="border p-2 rounded-md w-full"
+            />
+          )}
+        /> */}
       </div>
       <div className="flex justify-end gap-4">
         <Button
