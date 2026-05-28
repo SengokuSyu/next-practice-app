@@ -97,7 +97,7 @@ export default function Home() {
     if (!task) return;
     const { data } = await supabase
       .from("tasks")
-      .update({ completed: !task.completed })
+      .update({ completed: !task.status })
       .eq("id", id)
       .select();
 
@@ -135,7 +135,7 @@ export default function Home() {
       <Card className="p-8 rounded-3xl!">
         <div className="flex justify-between items-center mb-6">
           <Typography className="text-xl font-semibold">
-            タスク{tasks.filter((task) => task.completed).length}/{tasks.length}
+            タスク{tasks.filter((task) => task.status).length}/{tasks.length}
           </Typography>
           <Button
             startIcon={<Add />}
